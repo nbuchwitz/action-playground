@@ -26,14 +26,38 @@ jobs:
         run: >-
           python -m build
 
+      - run: echo "::set-output name=whl_file::$(basename $(ls dist/*.whl))"
+        id: whl_file
+
+      - name: release
+	uses: actions/create-release@v1
+	id: create_release
+	with:
+	  draft: false
+	  prerelease: false
+	  release_name: ${{ github.ref }}
+	  tag_name: ${{ github.ref }}
+	  body_path: CHANGELOG.md
+	env:
+	  GITHUB_TOKEN: ${{ github.token }}
+
+      - name: upload linux artifact
+	uses: actions/upload-release-asset@v1
+	env:
+	  GITHUB_TOKEN: ${{ github.token }}
+	with:
+	  upload_url: ${{ steps.create_release.outputs.upload_url }}
+	  asset_path: "dist/${{ steps.whl_file.outputs.whl_file }}"
+	  asset_name: ${{ steps.whl_file.outputs.whl_file }}
+	  asset_content_type: application/zip
+
           #- name: Get Asset name
           #  run: |
           #    export WHL=$(ls dist/ | grep whl)
           #    set -- $WHL
           #    echo "whl=$1" >> $GITHUB_ENV
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          path: dist/*.whl
-
+          # - name: Upload artifacts
+          #   uses: actions/upload-artifact@v3
+          #   with:
+          #     path: dist/*.whl
