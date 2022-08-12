@@ -37,7 +37,8 @@ jobs:
           prerelease: false
           release_name: ${{ github.ref }}
           tag_name: ${{ github.ref }}
-          body_path: CHANGELOG.md
+          body: "It's a release"
+            #body_path: CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
